@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoreSense | Secure Access</title>
+    <style>
+        /* --- CORE STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #06061a;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- BACKGROUND ANIMATION --- */
+        .background-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .blob {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            filter: blur(120px);
+            border-radius: 50%;
+            opacity: 0.35;
+            animation: moveBlobs 25s infinite alternate ease-in-out;
+        }
+
+        .blob-1 { background: #00d2ff; top: -15%; left: -10%; }
+        .blob-2 { background: #9d50bb; bottom: -15%; right: -10%; animation-delay: -7s; }
+        .blob-3 { background: #3a7bd5; top: 40%; left: 30%; width: 400px; height: 400px; }
+
+        @keyframes moveBlobs {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 50px) scale(1.1); }
+        }
+
+        /* --- GLASS CARD --- */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 45px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            color: white;
+            text-align: center;
+        }
+
+        .logo-h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #00d2ff, #9d50bb);
+            -webkit-background-clip: text;
+            background-clip: text; /* Fixed compatibility warning */
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .sub-text {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.95rem;
+            margin-bottom: 35px;
+        }
+
+        /* --- FORMS --- */
+        .form-content { transition: opacity 0.3s ease; }
+        .hidden { display: none; }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #00d2ff;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(45deg, #00d2ff, #9d50bb);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(157, 80, 187, 0.4);
+        }
+
+        .toggle-link {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .toggle-link span {
+            color: #00d2ff;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .toggle-link span:hover { text-decoration: underline; }
+
+        .copyright {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.2);
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <div class="glass-card">
+            <h1 class="logo-h1">ScoreSense</h1>
+            
+            <div id="login-section" class="form-content">
+                <p class="sub-text">Welcome back! Please enter your details.</p>
+                <input type="email" id="login-email" placeholder="Email Address" required>
+                <input type="password" id="login-pass" placeholder="Password" required>
+                <button class="btn" onclick="handleAuth('login')">Sign In</button>
+                <div class="toggle-link">
+                    Don't have an account? <span onclick="toggleForm()">Sign Up</span>
+                </div>
+            </div>
+
+            <div id="signup-section" class="form-content hidden">
+                <p class="sub-text">Create an account to start tracking performance.</p>
+                <input type="text" id="signup-name" placeholder="Full Name" required>
+                <input type="email" id="signup-email" placeholder="Email Address" required>
+                <input type="password" id="signup-pass" placeholder="Create Password" required>
+                <button class="btn" onclick="handleAuth('signup')">Create Account</button>
+                <div class="toggle-link">
+                    Already have an account? <span onclick="toggleForm()">Sign In</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copyright">© 2026 ScoreSense | Hackathon Edition</div>
+
+    <script>
+        // Toggle between Login and Sign Up
+        function toggleForm() {
+            const loginSec = document.getElementById('login-section');
+            const signupSec = document.getElementById('signup-section');
+            loginSec.classList.toggle('hidden');
+            signupSec.classList.toggle('hidden');
+        }
+
+        // Handle Logic & Redirection
+        function handleAuth(mode) {
+            let name = "";
+            let email = "";
+
+            if (mode === 'signup') {
+                name = document.getElementById('signup-name').value;
+                email = document.getElementById('signup-email').value;
+                if (!name || !email) { alert("Please fill all fields"); return; }
+            } else {
+                email = document.getElementById('login-email').value;
+                if (!email) { alert("Please enter email"); return; }
+                // Grab first part of email if name isn't provided (Mock Login)
+                name = email.split('@')[0];
+            }
+
+            // --- LOCAL STORAGE (Free Browser DB) ---
+            // Save user data so the Dashboard can say "Welcome, [Name]"
+            localStorage.setItem('scoreSense_user', name.charAt(0).toUpperCase() + name.slice(1));
+            localStorage.setItem('scoreSense_email', email);
+
+            // Redirect to Dashboard (Ensure you have dashboard.html in same folder)
+            window.location.href = "/dashboard";
+        }
+    </script>
+</body>
+</html>

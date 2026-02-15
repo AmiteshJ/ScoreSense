@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ScoreSense | Student Profile</title>
+    <style>
+        :root { --primary: #00d2ff; --secondary: #9d50bb; --bg: #06061a; --glass: rgba(255, 255, 255, 0.05); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: white; height: 100vh; display: flex; overflow: hidden; }
+
+        /* Sidebar */
+        nav { width: 260px; background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.1); padding: 40px 20px; display: flex; flex-direction: column; }
+        
+        .nav-brand { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            background: linear-gradient(90deg, var(--primary), var(--secondary)); 
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            margin-bottom: 40px; 
+        }
+
+        .nav-item { padding: 12px 18px; margin: 8px 0; border-radius: 12px; cursor: pointer; color: rgba(255,255,255,0.5); transition: 0.3s; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+
+        /* Main Profile Area */
+        main { flex: 1; padding: 40px; overflow-y: auto; }
+        .header { margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .profile-grid { display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
+        
+        /* Identity Card & Image Upload */
+        .id-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; text-align: center; backdrop-filter: blur(30px); }
+        
+        .avatar-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 20px;
+            cursor: pointer;
+        }
+
+        .avatar-large { 
+            width: 100%; height: 100%; 
+            border-radius: 50%; 
+            background: linear-gradient(45deg, var(--primary), var(--secondary)); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 3rem; font-weight: 800; 
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.1);
+        }
+        
+        .avatar-large img { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+        .camera-icon {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: var(--primary);
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            color: #000;
+            border: 2px solid #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        /* Form Inputs */
+        .details-card { background: var(--glass); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .field-group { margin-bottom: 20px; }
+        .field-label { font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+        
+        /* Editable Inputs */
+        .editable-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1.1rem;
+            padding: 8px 0;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .editable-input:disabled { color: rgba(255,255,255,0.7); cursor: not-allowed; }
+        .editable-input:enabled { border-bottom: 1px solid var(--primary); background: rgba(0, 210, 255, 0.05); padding-left: 10px; }
+        .editable-input:focus { outline: none; }
+
+        .btn-edit { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 10px 25px; border-radius: 12px; cursor: pointer; transition: 0.3s; font-weight: 600; }
+        .btn-edit.saving { background: var(--primary); color: #000; }
+        .btn-edit:hover { background: rgba(0, 210, 255, 0.1); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">ScoreSense</div>
+        <div class="nav-item" onclick="location.href='/dashboard'">← Back to Dashboard</div>
+        <div class="nav-item" style="color: white; background: rgba(255,255,255,0.05);">My Profile</div>
+    </nav>
+
+    <main>
+        <div class="header">
+            <h1>Student Profile</h1>
+            <button class="btn-edit" onclick="toggleEdit()" id="edit-btn">Edit Details</button>
+        </div>
+
+        <div class="profile-grid">
+            <div class="id-card">
+                <div class="avatar-container" onclick="document.getElementById('file-upload').click()">
+                    <div class="avatar-large" id="avatar-bg">
+                        <span id="initials">B</span>
+                        <img id="profile-img" src="" alt="Profile">
+                    </div>
+                    <div class="camera-icon">📷</div>
+                </div>
+                <input type="file" id="file-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+
+                <h2 id="display-name">Biplab Gorain</h2>
+                <p style="color: rgba(255,255,255,0.6); margin-top: 5px;">Computer Science | Final Year</p>
+                <div style="display: inline-block; padding: 5px 12px; border-radius: 20px; background: rgba(0, 255, 136, 0.1); color: #00ff88; font-size: 0.8rem; margin-top: 15px; border: 1px solid rgba(0, 255, 136, 0.2);">Top 10% Attendance</div>
+                
+                <div style="margin-top: 30px; text-align: left;">
+                    <p class="field-label">Student ID</p>
+                    <p>#SS-2026-8842</p>
+                    <br>
+                    <p class="field-label">Current Grit Score</p>
+                    <p style="color: var(--primary); font-size: 1.2rem; font-weight: bold;">72%</p>
+                </div>
+            </div>
+
+            <div class="details-card">
+                <h3 style="margin-bottom: 25px; color: var(--primary);">Academic Overview</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                    
+                    <div class="field-group">
+                        <p class="field-label">Full Name</p>
+                        <input type="text" class="editable-input" id="inp-name" value="Biplab Gorain" disabled>
+                    </div>
+
+                    <div class="field-group">
+                        <p class="field-label">Email Address</p>
+                        <input type="email" class="editable-input" id="inp-email" value="biplab.gorain@college.edu" disabled>
+                    </div>
+
+                    <div class="field-group">
+                        <p class="field-label">Phone Number</p>
+                        <input type="text" class="editable-input" id="inp-phone" value="+91 98765 43210" disabled>
+                    </div>
+
+                    <div class="field-group">
+                        <p class="field-label">Department</p>
+                        <input type="text" class="editable-input" id="inp-dept" value="Engineering & Tech" disabled>
+                    </div>
+
+                    <div class="field-group">
+                        <p class="field-label">Semester</p>
+                        <input type="text" class="editable-input" id="inp-sem" value="8th Semester" disabled>
+                    </div>
+
+                    <div class="field-group">
+                        <p class="field-label">University Roll No</p>
+                        <input type="text" class="editable-input" id="inp-roll" value="10900119045" disabled>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 20px; color: var(--secondary);">Settings</h3>
+                <div class="field-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" checked style="accent-color: var(--primary); width: 18px; height: 18px;">
+                        <span style="margin-left: 10px; opacity: 0.8; font-size: 0.9rem;">Enable AI Email Alerts</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 1. LOAD SAVED DATA ON STARTUP
+        window.onload = function() {
+            const savedName = localStorage.getItem('scoreSense_user');
+            const savedImg = localStorage.getItem('scoreSense_img');
+            const savedEmail = localStorage.getItem('scoreSense_email');
+            
+            if(savedName) {
+                document.getElementById('inp-name').value = savedName;
+                document.getElementById('display-name').innerText = savedName;
+                document.getElementById('initials').innerText = savedName.charAt(0);
+            }
+            if(savedEmail) document.getElementById('inp-email').value = savedEmail;
+            
+            if(savedImg) {
+                document.getElementById('profile-img').src = savedImg;
+                document.getElementById('profile-img').style.display = 'block';
+                document.getElementById('initials').style.display = 'none';
+            }
+        };
+
+        // 2. TOGGLE EDIT / SAVE MODE
+        function toggleEdit() {
+            const btn = document.getElementById('edit-btn');
+            const inputs = document.querySelectorAll('.editable-input');
+            const isEditing = btn.innerText === "Save Changes";
+
+            if (isEditing) {
+                // SAVE ACTION
+                inputs.forEach(input => input.disabled = true);
+                btn.innerText = "Edit Details";
+                btn.classList.remove('saving');
+
+                // Save to LocalStorage
+                const newName = document.getElementById('inp-name').value;
+                localStorage.setItem('scoreSense_user', newName);
+                localStorage.setItem('scoreSense_email', document.getElementById('inp-email').value);
+                
+                // Update Sidebar Name Immediately
+                document.getElementById('display-name').innerText = newName;
+                document.getElementById('initials').innerText = newName.charAt(0);
+
+            } else {
+                // EDIT ACTION
+                inputs.forEach(input => input.disabled = false);
+                btn.innerText = "Save Changes";
+                btn.classList.add('saving');
+                document.getElementById('inp-name').focus();
+            }
+        }
+
+        // 3. HANDLE IMAGE UPLOAD
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgData = e.target.result;
+                    
+                    // Update UI
+                    const imgEl = document.getElementById('profile-img');
+                    imgEl.src = imgData;
+                    imgEl.style.display = 'block';
+                    document.getElementById('initials').style.display = 'none';
+
+                    // Save to Browser Memory
+                    localStorage.setItem('scoreSense_img', imgData);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
