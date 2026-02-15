@@ -66,4 +66,13 @@ It helps students preparing for competitive exams like **JEE, NEET, UPSC, and GA
 ### 1️⃣ Clone the Repository
 ```bash
 git clone https://github.com/yourusername/scoresense.git
-cd scoresense
+cd scoresense 
+
+2️⃣ Install Dependencies
+pip install -r requirements.txt
+
+3️⃣ Run the Application
+python app.py
+
+4️⃣ Open in Browser
+http://127.0.0.1:5000
