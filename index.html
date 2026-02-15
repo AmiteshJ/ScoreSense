@@ -5,13 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScoreSense | Secure Access</title>
     <style>
-        /* --- CORE STYLES --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+        /* --- CORE STYLES (From your stable reference) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
             height: 100vh;
@@ -24,21 +19,16 @@
         }
 
         /* --- BACKGROUND ANIMATION --- */
-        .background-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
+        .background-container { position: absolute; width: 100%; height: 100%; z-index: 0; }
 
         .blob {
             position: absolute;
-            width: 600px;
-            height: 600px;
+            width: 600px; height: 600px;
             filter: blur(120px);
             border-radius: 50%;
             opacity: 0.35;
             animation: moveBlobs 25s infinite alternate ease-in-out;
+            will-change: transform; /* Optimization for smoothness */
         }
 
         .blob-1 { background: #00d2ff; top: -15%; left: -10%; }
@@ -57,6 +47,9 @@
             width: 100%;
             max-width: 420px;
             padding: 20px;
+            /* Flex fix to prevent resizing jitters */
+            display: flex;
+            flex-direction: column;
         }
 
         .glass-card {
@@ -69,6 +62,7 @@
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
             color: white;
             text-align: center;
+            transition: height 0.3s ease;
         }
 
         .logo-h1 {
@@ -76,7 +70,7 @@
             margin-bottom: 8px;
             background: linear-gradient(90deg, #00d2ff, #9d50bb);
             -webkit-background-clip: text;
-            background-clip: text; /* Fixed compatibility warning */
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
         }
@@ -84,17 +78,16 @@
         .sub-text {
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.95rem;
-            margin-bottom: 35px;
+            margin-bottom: 25px;
         }
 
         /* --- FORMS --- */
-        .form-content { transition: opacity 0.3s ease; }
         .hidden { display: none; }
 
         input {
             width: 100%;
             padding: 15px 20px;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
@@ -141,8 +134,18 @@
             font-weight: 600;
             margin-left: 5px;
         }
-
         .toggle-link span:hover { text-decoration: underline; }
+
+        .error-msg {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            display: none;
+        }
 
         .copyright {
             position: absolute;
@@ -164,23 +167,24 @@
     <div class="container">
         <div class="glass-card">
             <h1 class="logo-h1">ScoreSense</h1>
-            
-            <div id="login-section" class="form-content">
+            <div class="error-msg" id="error-text">Error Message</div>
+
+            <div id="login-section">
                 <p class="sub-text">Welcome back! Please enter your details.</p>
-                <input type="email" id="login-email" placeholder="Email Address" required>
+                <input type="text" id="login-user" placeholder="Username" required autocomplete="off">
                 <input type="password" id="login-pass" placeholder="Password" required>
-                <button class="btn" onclick="handleAuth('login')">Sign In</button>
+                <button class="btn" onclick="handleAuth('login')" id="login-btn">Sign In</button>
                 <div class="toggle-link">
                     Don't have an account? <span onclick="toggleForm()">Sign Up</span>
                 </div>
             </div>
 
-            <div id="signup-section" class="form-content hidden">
-                <p class="sub-text">Create an account to start tracking performance.</p>
-                <input type="text" id="signup-name" placeholder="Full Name" required>
-                <input type="email" id="signup-email" placeholder="Email Address" required>
+            <div id="signup-section" class="hidden">
+                <p class="sub-text">Create a secure account to start.</p>
+                <input type="text" id="signup-user" placeholder="Choose Username" required autocomplete="off">
                 <input type="password" id="signup-pass" placeholder="Create Password" required>
-                <button class="btn" onclick="handleAuth('signup')">Create Account</button>
+                <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+                <button class="btn" onclick="handleAuth('signup')" id="signup-btn">Create Account</button>
                 <div class="toggle-link">
                     Already have an account? <span onclick="toggleForm()">Sign In</span>
                 </div>
@@ -191,37 +195,91 @@
     <div class="copyright">© 2026 ScoreSense | Hackathon Edition</div>
 
     <script>
-        // Toggle between Login and Sign Up
+        // --- 1. TOGGLE LOGIC ---
         function toggleForm() {
             const loginSec = document.getElementById('login-section');
             const signupSec = document.getElementById('signup-section');
+            const error = document.getElementById('error-text');
+            
+            error.style.display = 'none'; // Clear errors on toggle
             loginSec.classList.toggle('hidden');
             signupSec.classList.toggle('hidden');
         }
 
-        // Handle Logic & Redirection
-        function handleAuth(mode) {
-            let name = "";
-            let email = "";
+        // --- 2. BACKEND CONNECTION (The important part) ---
+        async function handleAuth(mode) {
+            const error = document.getElementById('error-text');
+            error.style.display = 'none';
+
+            let username, password, confirmPass;
+            let endpoint;
+            let btn;
 
             if (mode === 'signup') {
-                name = document.getElementById('signup-name').value;
-                email = document.getElementById('signup-email').value;
-                if (!name || !email) { alert("Please fill all fields"); return; }
+                username = document.getElementById('signup-user').value;
+                password = document.getElementById('signup-pass').value;
+                confirmPass = document.getElementById('signup-confirm').value;
+                btn = document.getElementById('signup-btn');
+                endpoint = '/register';
+
+                // Basic Validation
+                if (!username || !password || !confirmPass) {
+                    showError("Please fill all fields"); return;
+                }
+                if (password !== confirmPass) {
+                    showError("Passwords do not match"); return;
+                }
+
             } else {
-                email = document.getElementById('login-email').value;
-                if (!email) { alert("Please enter email"); return; }
-                // Grab first part of email if name isn't provided (Mock Login)
-                name = email.split('@')[0];
+                username = document.getElementById('login-user').value;
+                password = document.getElementById('login-pass').value;
+                btn = document.getElementById('login-btn');
+                endpoint = '/login_api';
+
+                if (!username || !password) {
+                    showError("Please enter username and password"); return;
+                }
             }
 
-            // --- LOCAL STORAGE (Free Browser DB) ---
-            // Save user data so the Dashboard can say "Welcome, [Name]"
-            localStorage.setItem('scoreSense_user', name.charAt(0).toUpperCase() + name.slice(1));
-            localStorage.setItem('scoreSense_email', email);
+            // Visual Loading State
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            
+            try {
+                // TALK TO PYTHON BACKEND
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, password: password })
+                });
+                const data = await response.json();
 
-            // Redirect to Dashboard (Ensure you have dashboard.html in same folder)
-            window.location.href = "/dashboard";
+                if (data.status === 'success') {
+                    if (mode === 'login') {
+                        // Success! Save user and enter
+                        localStorage.setItem('scoreSense_user', username);
+                        window.location.href = '/dashboard';
+                    } else {
+                        // Registration Success
+                        alert("Account created! Please Sign In.");
+                        toggleForm();
+                        document.getElementById('login-user').value = username; // Pre-fill
+                        document.getElementById('login-pass').value = "";
+                    }
+                } else {
+                    showError(data.message);
+                }
+            } catch (e) {
+                showError("Server Error. Make sure app.py is running!");
+            }
+
+            btn.innerText = originalText;
+        }
+
+        function showError(msg) {
+            const error = document.getElementById('error-text');
+            error.innerText = msg;
+            error.style.display = 'block';
         }
     </script>
 </body>
